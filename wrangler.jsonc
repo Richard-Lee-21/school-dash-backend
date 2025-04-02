@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "school-dash",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-18",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets" : { 
+    "directory": "./public",
+    "binding": "ASSETS" 
+  },
+  "browser": {
+    "binding": "MYBROWSER"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "kv_namespaces": [
+    {
+      "binding": "school_dashboard",
+      "id": "18df2f40ee0849f2bd100565e85a9d81",
+      "preview_id": "5ca808ea6be4468fac7b010e5a10dca2"
+    }
+  ]
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "school-dashboard",
+  //     "database_id": "ca24fa71-08a8-429e-92cc-dad225b234ee"
+  //   }
+  // ]
+}
