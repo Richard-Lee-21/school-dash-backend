@@ -48,7 +48,95 @@ export async function renderHtml(data: DashboardData): Promise<string> {
 <head>
     <title>Kindle Dashboard</title>
     <style>
-        body {
+        ${styleTags}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Weather Section (from image 1) -->
+        <div class="box">
+            <div class="weather-container">
+                <div class="weather-day">
+                    <div>Currently</div>
+                    <div class="weather-icon">${getWeatherIcon(data.weatherData.currently.icon)}</div>
+                    <div class="weather-temp">${data.weatherData.currently.temperature}˚C</div>
+                    <div class="weather-desc">${
+                      data.weatherData.currently.summary
+                    }</div>
+                </div>
+                <div class="weather-day">
+                    <div>Afternoon (+4)</div>
+                    <div class="weather-icon">${getWeatherIcon(data.weatherData.hourly.data[4].icon)}</div>
+                    <div class="weather-temp">${data.weatherData.hourly.data[4].temperature}˚C</div>
+                    <div class="weather-desc">${
+                      data.weatherData.hourly.summary
+                    }</div>
+                </div>
+                <div class="weather-day">
+                    <div>Later today (+8)</div>
+                    <div class="weather-icon">${getWeatherIcon(data.weatherData.hourly.data[8].icon)}</div>
+                    <div class="weather-temp">${data.weatherData.hourly.data[8].temperature}˚C</div>
+                    <div class="weather-desc">${
+                      data.weatherData.hourly.data[8].summary
+                    }</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bus Times Section (from image 2) -->
+        <div class="box">
+            <div class="bus-container">
+                <div class="bus-item">
+                    <div class="bus-icon">${delay(data.departuresData.departures[0].delay)}</div>
+                    <div class="bus-time">${getHoursAndMinutes(
+                      data.departuresData.departures[0].when
+                    )}</div>
+                    <div class="bus-status">${getHoursAndMinutes(
+                      data.departuresData.departures[0].plannedWhen
+                    )}</div>
+                </div>
+                <div class="bus-item">
+                    <div class="bus-icon">${delay(data.departuresData.departures[1].delay)}</div>
+                    <div class="bus-time">${getHoursAndMinutes(
+                      data.departuresData.departures[1].when
+                    )}</div>
+                    <div class="bus-status">${getHoursAndMinutes(
+                      data.departuresData.departures[1].plannedWhen
+                    )}</div>
+                </div>
+                <div class="bus-item">
+                    <div class="bus-icon">${delay(data.departuresData.departures[2].delay)}</div>
+                    <div class="bus-time">${getHoursAndMinutes(
+                      data.departuresData.departures[2].when
+                    )}</div>
+                    <div class="bus-status">${getHoursAndMinutes(
+                      data.departuresData.departures[2].plannedWhen
+                    )}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expanded Timetable Section (moved to end) -->        
+        <div class="box">
+            <div class="header">${currentDate.toDateString()}</div>
+            <div class="timetable-container">
+                ${data.timeTable}
+            </div>
+        </div>
+
+        <!-- Footer with updated date -->
+        <div class="footer">
+            Last updated: ${currentDate.getHours()}:${currentDate.getMinutes()} | 🪫 ${data.batteryLevel} 
+        </div>
+    </div>
+</body>
+</html>
+    `;
+}
+
+
+const styleTags = `
+body {
             font-family: sans-serif;
             margin: 0;
             padding: 0;
@@ -137,87 +225,4 @@ export async function renderHtml(data: DashboardData): Promise<string> {
             margin-top: 2px;
             font-size: 14px;
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Weather Section (from image 1) -->
-        <div class="box">
-            <div class="weather-container">
-                <div class="weather-day">
-                    <div>Currently</div>
-                    <div class="weather-icon">${getWeatherIcon(data.weatherData.currently.icon)}</div>
-                    <div class="weather-temp">${data.weatherData.currently.temperature}˚C</div>
-                    <div class="weather-desc">${
-                      data.weatherData.currently.summary
-                    }</div>
-                </div>
-                <div class="weather-day">
-                    <div>Afternoon (+4)</div>
-                    <div class="weather-icon">${getWeatherIcon(data.weatherData.hourly.data[4].icon)}</div>
-                    <div class="weather-temp">${data.weatherData.hourly.data[4].temperature}˚C</div>
-                    <div class="weather-desc">${
-                      data.weatherData.hourly.summary
-                    }</div>
-                </div>
-                <div class="weather-day">
-                    <div>Later today (+8)</div>
-                    <div class="weather-icon">${getWeatherIcon(data.weatherData.hourly.data[8].icon)}</div>
-                    <div class="weather-temp">${data.weatherData.hourly.data[8].temperature}˚C</div>
-                    <div class="weather-desc">${
-                      data.weatherData.hourly.data[8].summary
-                    }</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bus Times Section (from image 2) -->
-        <div class="box">
-            <div class="bus-container">
-                <div class="bus-item">
-                    <div class="bus-time">${delay(data.departuresData.departures[0].delay)}</div>
-                    <div class="bus-time">${getHoursAndMinutes(
-                      data.departuresData.departures[0].when
-                    )}</div>
-                    <div class="bus-status">${getHoursAndMinutes(
-                      data.departuresData.departures[0].plannedWhen
-                    )}</div>
-                </div>
-                <div class="bus-item">
-                    <div class="bus-icon">${delay(data.departuresData.departures[1].delay)}</div>
-                    <div class="bus-time">${getHoursAndMinutes(
-                      data.departuresData.departures[1].when
-                    )}</div>
-                    <div class="bus-status">${getHoursAndMinutes(
-                      data.departuresData.departures[1].plannedWhen
-                    )}</div>
-                </div>
-                <div class="bus-item">
-                    <div class="bus-icon">${delay(data.departuresData.departures[2].delay)}</div>
-                    <div class="bus-time">${getHoursAndMinutes(
-                      data.departuresData.departures[2].when
-                    )}</div>
-                    <div class="bus-status">${getHoursAndMinutes(
-                      data.departuresData.departures[2].plannedWhen
-                    )}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Expanded Timetable Section (moved to end) -->        
-        <div class="box">
-            <div class="header">${currentDate.toDateString()}</div>
-            <div class="timetable-container">
-                ${data.timeTable}
-            </div>
-        </div>
-
-        <!-- Footer with updated date -->
-        <div class="footer">
-            Last updated: ${currentDate.getHours()}:${currentDate.getMinutes()} | 🪫 ${data.batteryLevel} 
-        </div>
-    </div>
-</body>
-</html>
-    `;
-}
+`

@@ -74,14 +74,14 @@ export async function getRouteData(c: Context): Promise<DeparturesData | null> {
   const timestampOnTheHour = `BVG_${getLocalTimestampOnTheHour()}`;
   console.log(`TimestampOnTheHour: ${timestampOnTheHour}`)
   const departuresData: DeparturesData = await c.env.school_dashboard.get(timestampOnTheHour, 'json') || null;
-  /*
+  
   if (departuresData != null) {
     // console.log(`Found data in cache, saved a network trip\n: ${departuresData}\n`)
     // const departuresData = JSON.stringify(data)    
     // const departuresData:DeparturesData = JSON.parse(JSON.stringify(data))
     // console.log(`departuresData: ${departuresData.departures[0].line.name}`)
     return departuresData
-  }*/
+  }
   console.log("No data in cache, fetching from the API")
   
 
