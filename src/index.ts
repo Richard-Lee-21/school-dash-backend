@@ -62,6 +62,13 @@ async function renderPNG(c):  Promise<Uint8Array<ArrayBufferLike> | null> {
   dashboardUrl = new URL(dashboardUrl).toString(); // normalize
   const browser = await puppeteer.launch(c.env.MYBROWSER);
   const page = await browser.newPage();
+  const battery_level = c.req.header('X-Battery-Level') ?? '-99';
+  //console.log(`🔋 -> ${battery_level}`)
+  page.setExtraHTTPHeaders(
+    {
+      'X-Battery-Level' : battery_level
+    }
+  );
 
   await page.setViewport({
     width: DASHBOARD_WIDTH,
@@ -141,7 +148,7 @@ app.get("/api/internal/dashboard", async (c) => {
   const departuresData = await getRouteData(c);
   const timeTable = await getTimetable(c);
   const battery_level = c.req.header('X-Battery-Level') ?? '-99';
-  console.log(`🔋 -> ${battery_level}`)
+  //console.log(`🔋 -> ${battery_level}`)
   
   let data: DashboardData = {
     weatherData: weatherData,
