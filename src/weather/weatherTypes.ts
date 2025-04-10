@@ -1,6 +1,10 @@
 import { Context } from "hono";
 import { getLocalTimestampOnTheHour } from "../util";
 
+const LATITUDE = 52.52;
+const LONGITUDE = 13.34;
+const TTL_SECONDS = 3600;
+
 export type WeatherData = {
   latitude: number;
   longitude: number;
@@ -95,30 +99,31 @@ export function getWeatherIcon(weatherType: string): string {
 
 export async function getWeatherData(c: Context): Promise<WeatherData | null> {
   const timestampOnTheHour = `WEATHER_${getLocalTimestampOnTheHour()}`;
-  console.log(`TimestampOnTheHour: ${timestampOnTheHour}`);
 
-  const data: WeatherData = (await c.env.school_dashboard.get(timestampOnTheHour, "json")) || null;
+  // Cache the weather data for an hour
+  const data: WeatherData =
+    (await c.env.SCHOOL_DASH_KV.get(timestampOnTheHour, "json")) || null;
   if (data != null) {
     console.log(`Cached weather data found: ${data.currently}`);
     return data;
   }
   console.log("Cached Data not found, hitting network");
   const API_KEY = c.env.PIRATE_WEATHER_API_KEY;
-  console.log(`🏴‍☠️ PIRATE_WEATHER_API_KEY: ${API_KEY}`)
-  const weatherURL =
-    `https://api.pirateweather.net/forecast/${API_KEY}/52.52,13.34?&units=si&exclude=minutely,daily`;
+
+  const weatherURL = `https://api.pirateweather.net/forecast/${API_KEY}/${LATITUDE},${LONGITUDE}?&units=si&exclude=minutely,daily`;
+
   try {
     const response = await fetch(weatherURL);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const weatherData: WeatherData = await response.json();
-    const secondsFromNow = 3600;
-    await c.env.school_dashboard.put(
+
+    await c.env.SCHOOL_DASH_KV.put(
       timestampOnTheHour,
       JSON.stringify(weatherData),
       {
-        expirationTtl: secondsFromNow,
+        expirationTtl: TTL_SECONDS,
       }
     );
 

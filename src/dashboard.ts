@@ -1,8 +1,17 @@
 import { html } from "hono/html";
-import { getWeatherIcon, HourlyWeather, WeatherConditions, WeatherData } from "./weather/weatherTypes";
+import {
+  getWeatherIcon,
+  HourlyWeather,
+  WeatherConditions,
+  WeatherData,
+} from "./weather/weatherTypes";
 import { delay, DeparturesData } from "./public-transport/bvg";
 import { getTimetable, TimeTable } from "./timetable/timetable";
-import { getLocalTimestampOnTheHour, getHoursAndMinutes, getCurrentDate } from "./util";
+import {
+  getLocalTimestampOnTheHour,
+  getHoursAndMinutes,
+  getCurrentDate,
+} from "./util";
 
 export type DashboardData = {
   weatherData: WeatherData;
@@ -10,38 +19,12 @@ export type DashboardData = {
   timeTable: String;
   batteryLevel: String;
 };
-/*
-function getHoursAndMinutes(datetimeString: string): string {
-    // Example usage
-    const berlinDateTime = getBerlinDateTime();
-    console.log(`⏰ berlinDateTime: ${berlinDateTime}`);
 
-  const datetime = new Date(datetimeString);
-  return `${datetime.getHours().toString().padStart(2, "0")}:${datetime.getMinutes().toString().padStart(2, "0")}`;
-}*/
+const TIMEZONE = "Europe/Berlin";
 
-function getWeatherAt(at: number, weatherData: WeatherData): WeatherConditions {
-    let noonWeather: WeatherConditions = weatherData.hourly.data[0]
-    let currentDate = new Date()
-    weatherData.hourly.data.forEach(conditions =>{        
-        const date = new Date(conditions.time * 1000);
-        const cetHour = date.toLocaleString('en-US', { 
-            timeZone: 'Europe/Berlin',
-            hour: 'numeric',
-            hour12: false 
-        });
-        // console.log(`cetHour: ${cetHour}`)
-        if (parseInt(cetHour) == at && date.getDate() == currentDate.getDate()) {
-            noonWeather = conditions
-        }
-    })
-    return noonWeather
-}
-
+// Until Cloudflare workers support templating like Jinja, we'll have to use static inlined HTML.
 export async function renderHtml(data: DashboardData): Promise<string> {
-    // console.log(`Weather At 16:00: ${getWeatherAt(16, data.weatherData).summary}: ${getWeatherAt(16, data.weatherData).time}`)
-    // console.log(`time: ${getHoursAndMinutes(data.departuresData.departures[0].when)}`);
-    let currentDate = getCurrentDate()
+  let currentDate = getCurrentDate();
   return `
 <!DOCTYPE html>
 <html>
@@ -58,24 +41,36 @@ export async function renderHtml(data: DashboardData): Promise<string> {
             <div class="weather-container">
                 <div class="weather-day">
                     <div>Currently</div>
-                    <div class="weather-icon">${getWeatherIcon(data.weatherData.currently.icon)}</div>
-                    <div class="weather-temp">${data.weatherData.currently.temperature}˚C</div>
+                    <div class="weather-icon">${getWeatherIcon(
+                      data.weatherData.currently.icon
+                    )}</div>
+                    <div class="weather-temp">${
+                      data.weatherData.currently.temperature
+                    }˚C</div>
                     <div class="weather-desc">${
                       data.weatherData.currently.summary
                     }</div>
                 </div>
                 <div class="weather-day">
                     <div>Afternoon (+4)</div>
-                    <div class="weather-icon">${getWeatherIcon(data.weatherData.hourly.data[4].icon)}</div>
-                    <div class="weather-temp">${data.weatherData.hourly.data[4].temperature}˚C</div>
+                    <div class="weather-icon">${getWeatherIcon(
+                      data.weatherData.hourly.data[4].icon
+                    )}</div>
+                    <div class="weather-temp">${
+                      data.weatherData.hourly.data[4].temperature
+                    }˚C</div>
                     <div class="weather-desc">${
                       data.weatherData.hourly.summary
                     }</div>
                 </div>
                 <div class="weather-day">
                     <div>Later today (+8)</div>
-                    <div class="weather-icon">${getWeatherIcon(data.weatherData.hourly.data[8].icon)}</div>
-                    <div class="weather-temp">${data.weatherData.hourly.data[8].temperature}˚C</div>
+                    <div class="weather-icon">${getWeatherIcon(
+                      data.weatherData.hourly.data[8].icon
+                    )}</div>
+                    <div class="weather-temp">${
+                      data.weatherData.hourly.data[8].temperature
+                    }˚C</div>
                     <div class="weather-desc">${
                       data.weatherData.hourly.data[8].summary
                     }</div>
@@ -87,7 +82,9 @@ export async function renderHtml(data: DashboardData): Promise<string> {
         <div class="box">
             <div class="bus-container">
                 <div class="bus-item">
-                    <div class="bus-icon">${delay(data.departuresData.departures[0].delay)}</div>
+                    <div class="bus-icon">${delay(
+                      data.departuresData.departures[0].delay
+                    )}</div>
                     <div class="bus-time">${getHoursAndMinutes(
                       data.departuresData.departures[0].when
                     )}</div>
@@ -96,7 +93,9 @@ export async function renderHtml(data: DashboardData): Promise<string> {
                     )}</div>
                 </div>
                 <div class="bus-item">
-                    <div class="bus-icon">${delay(data.departuresData.departures[1].delay)}</div>
+                    <div class="bus-icon">${delay(
+                      data.departuresData.departures[1].delay
+                    )}</div>
                     <div class="bus-time">${getHoursAndMinutes(
                       data.departuresData.departures[1].when
                     )}</div>
@@ -105,7 +104,9 @@ export async function renderHtml(data: DashboardData): Promise<string> {
                     )}</div>
                 </div>
                 <div class="bus-item">
-                    <div class="bus-icon">${delay(data.departuresData.departures[2].delay)}</div>
+                    <div class="bus-icon">${delay(
+                      data.departuresData.departures[2].delay
+                    )}</div>
                     <div class="bus-time">${getHoursAndMinutes(
                       data.departuresData.departures[2].when
                     )}</div>
@@ -126,7 +127,7 @@ export async function renderHtml(data: DashboardData): Promise<string> {
 
         <!-- Footer with updated date -->
         <div class="footer">
-            Last updated: ${currentDate.getHours()}:${currentDate.getMinutes()} | 🪫 ${data.batteryLevel} 
+            Last updated: ${currentDate.getHours()}:${currentDate.getMinutes()} | 🪫 ${ data.batteryLevel } 
         </div>
     </div>
 </body>
@@ -134,7 +135,24 @@ export async function renderHtml(data: DashboardData): Promise<string> {
     `;
 }
 
+function getWeatherAt(at: number, weatherData: WeatherData): WeatherConditions {
+  let weatherAt: WeatherConditions = weatherData.hourly.data[0];
+  let currentDate = new Date();
+  weatherData.hourly.data.forEach((conditions) => {
+    const date = new Date(conditions.time * 1000);
+    const cetHour = date.toLocaleString("en-US", {
+      timeZone: TIMEZONE,
+      hour: "numeric",
+      hour12: false,
+    });
+    if (parseInt(cetHour) == at && date.getDate() == currentDate.getDate()) {
+      weatherAt = conditions;
+    }
+  });
+  return weatherAt;
+}
 
+// Keep CSS in a separate constant
 const styleTags = `
 body {
             font-family: sans-serif;
@@ -225,4 +243,4 @@ body {
             margin-top: 2px;
             font-size: 14px;
         }
-`
+`;

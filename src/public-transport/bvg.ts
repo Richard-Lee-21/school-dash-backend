@@ -1,5 +1,12 @@
+// This functionality is based on the BVG Transport REST API available at https://v6.bvg.transport.rest/api.html
+
 import { Context } from "hono";
 import { getDateTimeWithTZ, getLocalTimestampOnTheHour } from "../util";
+
+const TTL_SECONDS = 3600;
+const STOP_ID = 900044104;
+const DIRECTION_STOP_ID = 900003104;
+const DURATION = 60;
 
 export type Location = {
   type: string;
@@ -67,49 +74,49 @@ export type DeparturesData = {
   realtimeDataUpdatedAt: number; // Unix timestamp
 };
 
-
 export async function getRouteData(c: Context): Promise<DeparturesData | null> {
   const bvgURL = getUrlForToday();
-  const secondsFromNow = 3600;  
+  const secondsFromNow = 3600;
   const timestampOnTheHour = `BVG_${getLocalTimestampOnTheHour()}`;
-  console.log(`TimestampOnTheHour: ${timestampOnTheHour}`)
-  const departuresData: DeparturesData = await c.env.school_dashboard.get(timestampOnTheHour, 'json') || null;
   
+  const departuresData: DeparturesData =
+    (await c.env.SCHOOL_DASH_KV.get(timestampOnTheHour, "json")) || null;
+
   if (departuresData != null) {
-    // console.log(`Found data in cache, saved a network trip\n: ${departuresData}\n`)
-    // const departuresData = JSON.stringify(data)    
-    // const departuresData:DeparturesData = JSON.parse(JSON.stringify(data))
-    // console.log(`departuresData: ${departuresData.departures[0].line.name}`)
-    return departuresData
+    // console.log(`Found data in cache, saved a network trip`)
+    return departuresData;
   }
-  console.log("No data in cache, fetching from the API")
-  
+  //console.log("No data in cache, fetching from the API")
 
   try {
     const response = await fetch(bvgURL);
-    console.log(`got response: ${response.status}`)
 
     if (!response.ok) {
       console.error("HTTP error! status:", response.status);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const departuresData:DeparturesData = await response.json();
+    const departuresData: DeparturesData = await response.json();
 
-    if (Array.isArray(departuresData.departures) && departuresData.departures.length === 0) {
+    if (
+      Array.isArray(departuresData.departures) &&
+      departuresData.departures.length === 0
+    ) {
+      // 🚧 Sometimes BVG is on strike so the API returns empty departures[] 🚧
       console.log("No departures available.");
       return null;
     } else {
-      //console.log('Departures:', departuresData.realtimeDataUpdatedAt);
-      for (let i = 0; i < 3; i++) {
-        console.log(`❎ ${departuresData.departures[i].when} : ${departuresData.departures[i].delay}`)
-      }
-      await c.env.school_dashboard.put(timestampOnTheHour, JSON.stringify(departuresData), {
-        expirationTtl: secondsFromNow,
-      });
+      await c.env.SCHOOL_DASH_KV.put(
+        timestampOnTheHour,
+        JSON.stringify(departuresData),
+        {
+          expirationTtl: TTL_SECONDS,
+        }
+      );
       return departuresData;
     }
   } catch (error) {
-    console.error("error fetch BVG data:", error);
+    console.error("error fetching BVG data:", error);
     return null;
   }
 }
@@ -124,61 +131,60 @@ interface DepartureUrlParams {
 function buildDepartureUrl(params: DepartureUrlParams): string {
   // Base URL with stop ID
   const baseUrl = `https://v6.bvg.transport.rest/stops/${params.stopId}/departures`;
-  
+
   // Create URL search params
   const searchParams = new URLSearchParams();
-  
+
   // Add direction if provided
   if (params.direction) {
-    searchParams.append('direction', params.direction.toString());
+    searchParams.append("direction", params.direction.toString());
   }
-  
+
   // Add bus parameter if specified
   if (params.bus !== undefined) {
-    searchParams.append('bus', params.bus.toString());
+    searchParams.append("bus", params.bus.toString());
   }
-  
-  console.log("Here...")
+
   // Current time in "yyyy-MM-dd'T'HH:mm:ssxxx" format
   const cetTimestamp = getDateTimeWithTZ();
-  
+
   // Append the timestamp offset by 1 hour
-  searchParams.append('when', cetTimestamp);
-  
+  searchParams.append("when", cetTimestamp);
+
   // Add remarks parameter if specified
   if (params.remarks !== undefined) {
-    searchParams.append('remarks', params.remarks.toString());
+    searchParams.append("remarks", params.remarks.toString());
   }
-  
+
   // Add duration if provided
   if (params.duration) {
-    searchParams.append('duration', params.duration.toString());
+    searchParams.append("duration", params.duration.toString());
   }
-  
+
   // Combine base URL with search params
   return `${baseUrl}?${searchParams.toString()}`;
 }
 
 function getUrlForToday(): string {
   const url = buildDepartureUrl({
-    stopId: 900044104,
-    direction: 900003104,
+    stopId: STOP_ID,
+    direction: DIRECTION_STOP_ID,
     bus: true,
     remarks: false,
-    duration: 60
+    duration: DURATION,
   });
 
-  return url
-
+  return url;
 }
 
+// Helper function to pretty print the delay
 export function delay(delayed: number | null): string {
-  const seconds: number = delayed === null ? 0 : delayed
+  const seconds: number = delayed === null ? 0 : delayed;
   const minutes = Math.abs(Math.round(seconds / 60));
   if (seconds < 0) {
     return `Early: ${minutes} min`;
   } else if (seconds === 0) {
-    return 'On Time';
+    return "On Time";
   } else {
     return `Delayed: ${minutes} min`;
   }

@@ -11,9 +11,7 @@ export function getLocalTimestampOnTheHour(): string {
 }
 
 export function getHoursAndMinutes(datetimeString: string): string {
-  //console.log(`☑️ received DateString: ${datetimeString}`);
   const datetime = toZonedTime(new Date(datetimeString), TIMEZONE);
-  //console.log(`✅ dateString: ${datetime.getHours()}: ${datetime.getMinutes()}`);  
   return `${datetime.getHours().toString().padStart(2, "0")}:${datetime.getMinutes().toString().padStart(2, "0")}`;
 }
 
@@ -23,9 +21,8 @@ export function getCurrentDate(): Date {
     return berlinDateTime;
 }
 
+// Format with timezone offset for Berlin
 export function getDateTimeWithTZ():string {
-    const now = new Date()    
-    // Format with timezone offset for Berlin
-    //console.log(`${formatInTimeZone(now, 'Europe/Berlin', "yyyy-MM-dd'T'HH:mm:ssxxx")}`);
+    const now = new Date()
     return formatInTimeZone(now, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ssxxx");
 }

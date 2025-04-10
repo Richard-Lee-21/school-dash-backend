@@ -16,6 +16,6 @@
     "@cf-wasm/photon": "^0.1.29",
     "@cloudflare/puppeteer": "^0.0.14",
     "@cloudflare/workers-types": "^4.20250214.0",
-    "wrangler": "^4.6.0"
+    "wrangler": "^4.9.1"
   }
 }

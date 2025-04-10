@@ -17,9 +17,9 @@
   },
   "kv_namespaces": [
     {
-      "binding": "school_dashboard",
-      "id": "18df2f40ee0849f2bd100565e85a9d81",
-      "preview_id": "5ca808ea6be4468fac7b010e5a10dca2"
+      "binding": "SCHOOL_DASH_KV",
+      "id": "15f874c8d78c442f9957a4925444c810",
+      "preview_id": "f4f6f9a8276c447bad037cbd7016361f"
     }
   ]
   // "d1_databases": [

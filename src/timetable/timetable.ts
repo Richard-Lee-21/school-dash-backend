@@ -10,13 +10,15 @@ enum DayOfWeek {
     Tuesday = "Tuesday",
     Wednesday = "Wednesday",
     Thursday = "Thursday",
-    Friday = "Friday",    
+    Friday = "Friday",
+    Saturday = "Saturday",
+    Sunday = "Sunday"    
 }
 
 export async function getTimetable(c: Context): Promise<String | null> {
 
-    /*
-    const timeTable: TimeTable[] = await c.env.school_dashboard.get('time-table-5C', 'json') || [];
+    /* 💡 It's easier to hard code the timetable for now, it changes only once a year.
+    const timeTable: TimeTable[] = await c.env.SCHOOL_DASH_KV.get('time-table-5C', 'json') || [];
     if (timeTable.length === 0) {
         console.log(`Cached timetable data found: ${timeTable.length}`)
         return timeTable[0]
@@ -28,18 +30,16 @@ export async function getTimetable(c: Context): Promise<String | null> {
     const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()];
     const ttJson: TimeTable[] = JSON.parse(timetableJSON)    
     const timeTable:TimeTable = ttJson.filter(tt => tt.Day.toString() === dayOfWeek)[0]
-    //const timeTable:TimeTable = ttJson.filter(tt => tt.Day.toString() === 'Monday')[0]
-    //console.log(`returning TT.Day: ${timeTable.Day} for Day: ${timeTable.Plan}`)
 
-    const html = renderTimetable(timeTable)
-    // console.log(html)
+    const timetableAsHTML = renderTimetable(timeTable)
 
-    return html
+    return timetableAsHTML
 }
 
 
 function renderTimetable(todaysTimetable: TimeTable): string {
-    
+
+    // Hardcode Sunday values
     if (todaysTimetable.Day.toString() === 'Sunday') {        
         const sundayHtml = `
             <div class="timetable-item">
@@ -51,7 +51,8 @@ function renderTimetable(todaysTimetable: TimeTable): string {
         return sundayHtml
     }
     
-    let html = []
+    // Fit in the classes into their correct slots while taking care of the breaks
+    let renderedHTML = []
     let period = '08:00'
     for (let i = 0; i < 12; i++) {
         let slot = todaysTimetable.Plan[i]
@@ -73,9 +74,6 @@ function renderTimetable(todaysTimetable: TimeTable): string {
                 period = nextSlot(period, 45)
                 break
         }
-
-        // console.log(`newTime: ${period} - ${slot}`)
-
         const slotDiv = `
             <div class="timetable-item">
                 <div class="timetable-time">${period}</div>
@@ -83,11 +81,9 @@ function renderTimetable(todaysTimetable: TimeTable): string {
                 <div class="timetable-status"> </div>
             </div>
         `
-        //console.log(`${slotDiv} \n`)        
-        html.push(slotDiv)
+        renderedHTML.push(slotDiv)
     }
-
-    return html.join("")
+    return renderedHTML.join("")
 }
 
 function nextSlot(timeString:string, minutesToAdd:number): string {
