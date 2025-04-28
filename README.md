@@ -10,12 +10,9 @@ Turn your jailbroken Kindle into a low powered dashboard. The system works by ex
 
 ## Prerequisites
 
-- A jailbroken Kindle device (tested on my old Kindle 10th Gen model)
-- Basic knowledge of Linux commands and shell scripting
-- Cloudflare worker to host the 
-- SSH access to your Kindle
-- Image must be 8 bit grayscale in the correct resolution. 
-  Find the correct resolution using `eips -i` command on the kindle.
+- A free Cloudflare account
+- Basic knowledge of JavaScript
+- A spirit for adventure 🏴‍☠️
 
 
 ## Installation
