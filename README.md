@@ -8,6 +8,8 @@ The server component of the project to transforms your jailbroken Kindle into a 
 
 Turn your jailbroken Kindle into a low powered dashboard. The system works by executing a script (`dash.sh`) that periodically fetches PNG images from a Cloudflare worker and displays it on the Kindle's e-ink screen. I use this to show today's weather, arrival data for the bus stop next door and the day's timetable for my daughter's school. You can use it to display any other information you want to display in a low-power, always-on format.
 
+This is the backend component of the project. For the client that runs on the Kindle please see this repo: [kindle-dash-client](https://github.com/samkhawase/kindle-dash-client).
+
 ## Prerequisites
 
 - A free Cloudflare account
