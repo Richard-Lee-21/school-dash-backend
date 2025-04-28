@@ -31,7 +31,7 @@ I used [Bun](https://bun.sh/) as the main development framework, but you can als
 Wrangler is the workhorse of Cloudflare developer platform. It's open source and can be installed from [Wrangler docs](https://developers.cloudflare.com/workers/wrangler/).
 
 
-Cloudflare devs is a very active community and is very helpful. For advanced topics, refer to [Cloudflare developers]https://developers.cloudflare.com/) or the [Cloudflare Discord Server](https://discord.com/invite/cloudflaredev).
+Cloudflare devs is a very active community and is very helpful. For advanced topics, refer to [Cloudflare developers](https://developers.cloudflare.com/) or the [Cloudflare Discord Server](https://discord.com/invite/cloudflaredev).
 
 ### 2. Set Up
 
