@@ -1,8 +1,8 @@
 import { Context } from "hono";
 import { getLocalTimestampOnTheHour } from "../util";
 
-const LATITUDE = 52.52;
-const LONGITUDE = 13.34;
+const LATITUDE = 39.9042; // Beijing latitude
+const LONGITUDE = 116.4074; // Beijing longitude
 const TTL_SECONDS = 3600;
 
 export type WeatherData = {
@@ -108,16 +108,19 @@ export async function getWeatherData(c: Context): Promise<WeatherData | null> {
     return data;
   }
   console.log("Cached Data not found, hitting network");
-  const API_KEY = c.env.PIRATE_WEATHER_API_KEY;
+  const API_KEY = c.env.QWEATHER_API_KEY;
 
-  const weatherURL = `https://api.pirateweather.net/forecast/${API_KEY}/${LATITUDE},${LONGITUDE}?&units=si&exclude=minutely,daily`;
+  const weatherURL = `https://devapi.qweather.com/v7/weather/24h?location=${LONGITUDE},${LATITUDE}&key=${API_KEY}&unit=metric`;
 
   try {
     const response = await fetch(weatherURL);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const weatherData: WeatherData = await response.json();
+    const qweatherResponse = await response.json();
+    
+    // Convert QWeather API response to our WeatherData format
+    const weatherData: WeatherData = convertQWeatherToWeatherData(qweatherResponse);
 
     await c.env.SCHOOL_DASH_KV.put(
       timestampOnTheHour,
@@ -132,4 +135,141 @@ export async function getWeatherData(c: Context): Promise<WeatherData | null> {
     console.error("Error fetching weather data:", error);
     return null; // Return null or handle the error as needed
   }
+}
+
+// QWeather API response types
+type QWeatherResponse = {
+  code: string;
+  updateTime: string;
+  fxLink: string;
+  hourly: QWeatherHourly[];
+};
+
+type QWeatherHourly = {
+  fxTime: string;
+  temp: string;
+  icon: string;
+  text: string;
+  wind360: string;
+  windDir: string;
+  windScale: string;
+  windSpeed: string;
+  humidity: string;
+  pop: string;
+  precip: string;
+  pressure: string;
+  cloud: string;
+  dew: string;
+};
+
+// Convert QWeather API response to our WeatherData format
+function convertQWeatherToWeatherData(qweatherResponse: QWeatherResponse): WeatherData {
+  const now = new Date();
+  const currentHour = qweatherResponse.hourly[0];
+  const hourlyData = qweatherResponse.hourly.slice(0, 24).map((hour, index) => ({
+    time: Math.floor(new Date(hour.fxTime).getTime() / 1000),
+    summary: hour.text,
+    icon: mapQWeatherIcon(hour.icon),
+    precipIntensity: parseFloat(hour.precip) || 0,
+    precipProbability: parseFloat(hour.pop) || 0,
+    precipIntensityError: 0,
+    precipType: "rain",
+    temperature: parseFloat(hour.temp),
+    apparentTemperature: parseFloat(hour.temp),
+    dewPoint: parseFloat(hour.dew),
+    humidity: parseFloat(hour.humidity),
+    pressure: parseFloat(hour.pressure),
+    windSpeed: parseFloat(hour.windSpeed),
+    windGust: parseFloat(hour.windSpeed),
+    windBearing: parseInt(hour.wind360),
+    cloudCover: parseFloat(hour.cloud),
+    uvIndex: 0,
+    visibility: 10,
+    ozone: 0,
+  }));
+
+  return {
+    latitude: LATITUDE,
+    longitude: LONGITUDE,
+    timezone: "Asia/Shanghai",
+    offset: 8,
+    elevation: 0,
+    currently: hourlyData[0],
+    hourly: {
+      summary: "24小时天气预报",
+      icon: mapQWeatherIcon(currentHour.icon),
+      data: hourlyData,
+    },
+    flags: {
+      sources: ["qweather"],
+      sourceTimes: {
+        qweather: qweatherResponse.updateTime,
+      },
+      nearestStation: 0,
+      units: "si",
+      version: "1.0",
+    },
+  };
+}
+
+// Map QWeather icon codes to our weather icon types
+function mapQWeatherIcon(qweatherIcon: string): string {
+  const iconMap: { [key: string]: string } = {
+    "100": "clear-day",
+    "101": "partly-cloudy-day",
+    "102": "partly-cloudy-day",
+    "103": "cloudy",
+    "104": "cloudy",
+    "300": "rain",
+    "301": "rain",
+    "302": "rain",
+    "303": "rain",
+    "304": "rain",
+    "305": "rain",
+    "306": "rain",
+    "307": "rain",
+    "308": "rain",
+    "309": "rain",
+    "310": "rain",
+    "311": "rain",
+    "312": "rain",
+    "313": "rain",
+    "314": "rain",
+    "315": "rain",
+    "316": "rain",
+    "317": "rain",
+    "318": "rain",
+    "399": "rain",
+    "400": "snow",
+    "401": "snow",
+    "402": "snow",
+    "403": "snow",
+    "404": "snow",
+    "405": "snow",
+    "406": "snow",
+    "407": "snow",
+    "408": "snow",
+    "409": "snow",
+    "410": "snow",
+    "499": "snow",
+    "500": "fog",
+    "501": "fog",
+    "502": "fog",
+    "503": "fog",
+    "504": "fog",
+    "507": "fog",
+    "508": "fog",
+    "509": "fog",
+    "510": "fog",
+    "511": "fog",
+    "512": "fog",
+    "513": "fog",
+    "514": "fog",
+    "515": "fog",
+    "900": "wind",
+    "901": "wind",
+    "999": "clear-day",
+  };
+  
+  return iconMap[qweatherIcon] || "clear-day";
 }

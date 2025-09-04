@@ -20,7 +20,7 @@ export type DashboardData = {
   batteryLevel: String;
 };
 
-const TIMEZONE = "Europe/Berlin";
+const TIMEZONE = "Asia/Shanghai";
 
 // Until Cloudflare workers support templating like Jinja, we'll have to use static inlined HTML.
 export async function renderHtml(data: DashboardData): Promise<string> {

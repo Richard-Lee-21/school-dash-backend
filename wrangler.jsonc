@@ -21,6 +21,9 @@
       "id": "acafa772afbb49a3ac492821a11f3fb0",
       "preview_id": "bd55b8e07be1410cb6cc2c8e3ceccfda"
     }
+  ],
+  "routes": [
+    { "pattern": "your-domain.com/*", "zone_id": "your-zone-id" }
   ]
   // "d1_databases": [
   //   {
