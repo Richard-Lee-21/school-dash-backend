@@ -37,6 +37,11 @@ npx wrangler kv namespace create SCHOOL_DASH_KV
 npx wrangler kv namespace create SCHOOL_DASH_KV --preview
 ```
 
+### 依赖问题解决
+如果遇到 "lockfile had changes, but lockfile is frozen" 错误：
+1. 删除 bun.lockb 文件（项目已移除，使用npm）
+2. 重新部署：`bun run deploy` 或 `npx wrangler deploy --minify`
+
 ## Architecture
 
 ### Core Components
