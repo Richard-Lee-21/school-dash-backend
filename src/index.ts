@@ -13,11 +13,11 @@ type Bindings = {
   SCHOOL_DASH_KV: KVNamespace;
 };
 
-// Offsets for rotated image; unused
-const HORIZONTAL_OFFSET = 70;
-const VERTICAL_OFFSET = 860;
-const DASHBOARD_WIDTH = 758;
-const DASHBOARD_HEIGHT = 1024;
+// Kindle target resolution
+const KINDLE_WIDTH = 600;
+const KINDLE_HEIGHT = 800;
+const DASHBOARD_WIDTH = 600;  // Changed to match Kindle width
+const DASHBOARD_HEIGHT = 800; // Changed to match Kindle height
 
 const app = new Hono<{ Bindings: Bindings }>();
 

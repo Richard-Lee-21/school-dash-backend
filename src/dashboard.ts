@@ -162,15 +162,15 @@ body {
             background-color: white;
         }
         .container {
-            width: 758px;
-            max-width: 758px;
+            width: 600px;
+            max-width: 600px;
             margin: 0;
             padding: 0;
         }
         .box {
             border: 2px solid #555;
-            margin: 10px 10px;
-            padding: 15px;
+            margin: 8px 8px;
+            padding: 12px;
         }
         .header {
             font-size: 16px;
