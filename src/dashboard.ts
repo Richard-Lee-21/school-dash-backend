@@ -161,9 +161,10 @@ body {
             background-color: white;
         }
         .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+            width: 758px;
+            max-width: 758px;
+            margin: 0;
+            padding: 0;
         }
         .box {
             border: 2px solid #555;

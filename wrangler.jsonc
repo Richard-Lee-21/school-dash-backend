@@ -18,9 +18,6 @@
       "preview_id": "66394334d465464ab96f18ca54cb93a2"
     }
   ],
-  "routes": [
-    { "pattern": "your-domain.com/*", "zone_id": "your-zone-id" }
-  ]
   // "d1_databases": [
   //   {
   //     "binding": "DB",

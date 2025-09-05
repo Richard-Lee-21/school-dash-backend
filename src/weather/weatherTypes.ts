@@ -110,6 +110,12 @@ export async function getWeatherData(c: Context): Promise<WeatherData | null> {
   console.log("Cached Data not found, hitting network");
   const API_KEY = c.env.QWEATHER_API_KEY;
 
+  // If no API key is configured, return default weather data
+  if (!API_KEY) {
+    console.log("No QWeather API key configured, returning default weather data");
+    return getDefaultWeatherData();
+  }
+
   const weatherURL = `https://devapi.qweather.com/v7/weather/24h?location=${LONGITUDE},${LATITUDE}&key=${API_KEY}&unit=metric`;
 
   try {
@@ -272,4 +278,46 @@ function mapQWeatherIcon(qweatherIcon: string): string {
   };
   
   return iconMap[qweatherIcon] || "clear-day";
+}
+
+function getDefaultWeatherData(): WeatherData {
+  const now = Math.floor(Date.now() / 1000);
+  
+  return {
+    latitude: LATITUDE,
+    longitude: LONGITUDE,
+    timezone: "Asia/Shanghai",
+    offset: 28800, // UTC+8
+    elevation: 50,
+    currently: {
+      time: now,
+      summary: "晴朗",
+      icon: "clear-day",
+      temperature: 22,
+      humidity: 0.65,
+      windSpeed: 3.5,
+      windBearing: 180,
+      visibility: 16,
+      pressure: 1013,
+    },
+    hourly: {
+      summary: "今日天气晴朗",
+      icon: "clear-day",
+      data: Array.from({ length: 24 }, (_, i) => ({
+        time: now + (i * 3600),
+        summary: "晴朗",
+        icon: i < 12 ? "clear-day" : "clear-night",
+        temperature: 22 + Math.sin(i / 24 * Math.PI) * 5,
+        humidity: 0.65 + Math.random() * 0.1,
+        windSpeed: 3.5 + Math.random() * 2,
+        windBearing: 180 + Math.random() * 90 - 45,
+        visibility: 16,
+        pressure: 1013 + Math.random() * 10 - 5,
+      })),
+    },
+    flags: {
+      sources: ["default"],
+      units: "metric",
+    },
+  };
 }

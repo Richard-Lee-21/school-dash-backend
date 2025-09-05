@@ -16,10 +16,20 @@ type Bindings = {
 // Offsets for rotated image; unused
 const HORIZONTAL_OFFSET = 70;
 const VERTICAL_OFFSET = 860;
-const DASHBOARD_WIDTH = 600;
-const DASHBOARD_HEIGHT = 800;
+const DASHBOARD_WIDTH = 758;
+const DASHBOARD_HEIGHT = 1024;
 
 const app = new Hono<{ Bindings: Bindings }>();
+
+// Simple test endpoint to verify server is working
+app.get("/api/test", async (c) => {
+  return c.json({
+    status: "ok",
+    message: "Server is working!",
+    timestamp: new Date().toISOString(),
+    battery: c.req.header("X-Battery-Level") || "unknown"
+  });
+});
 
 /* GET/SET the battery status
 app.get("/api/battery/:level", async (c) => {
@@ -69,10 +79,18 @@ async function renderPNG(c): Promise<Uint8Array<ArrayBufferLike> | null> {
   await page.setViewport({
     width: DASHBOARD_WIDTH,
     height: DASHBOARD_HEIGHT,
+    deviceScaleFactor: 1,
   });
 
-  await page.goto(dashboardUrl);
-  // Inject CSS to hide scrollbars before taking screenshot
+  await page.goto(dashboardUrl, { 
+    waitUntil: 'networkidle2',
+    timeout: 30000 
+  });
+  
+  // Wait a bit more for any dynamic content to load
+  await page.waitForTimeout(1000);
+
+  // Inject CSS to hide scrollbars and ensure proper rendering
   await page.addStyleTag({
     content: `
     ::-webkit-scrollbar {
@@ -81,6 +99,17 @@ async function renderPNG(c): Promise<Uint8Array<ArrayBufferLike> | null> {
     * {
       -ms-overflow-style: none !important;  /* IE and Edge */
       scrollbar-width: none !important;     /* Firefox */
+    }
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    .container {
+      width: ${DASHBOARD_WIDTH}px !important;
+      max-width: ${DASHBOARD_WIDTH}px !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
   `,
   });
@@ -93,6 +122,7 @@ async function renderPNG(c): Promise<Uint8Array<ArrayBufferLike> | null> {
       width: DASHBOARD_WIDTH,
       height: DASHBOARD_HEIGHT,
     },
+    captureBeyondViewport: true,
   });
 
   await browser.close();
@@ -118,7 +148,8 @@ async function renderPNG(c): Promise<Uint8Array<ArrayBufferLike> | null> {
       const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
 
       // Store only the grayscale value (single channel)
-      grayscaleData[i / 4] = gray;
+      const pixelIndex = Math.floor(i / 4);
+      grayscaleData[pixelIndex] = gray;
     }
 
     // Encode back to PNG with specific options
