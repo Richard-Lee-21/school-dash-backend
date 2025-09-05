@@ -73,27 +73,39 @@ enum WeatherType {
 export function getWeatherIcon(weatherType: string): string {
   switch (weatherType) {
     case WeatherType.CLEAR_DAY:
+    case "clear-day":
       return "☀️";
     case WeatherType.CLEAR_NIGHT:
+    case "clear-night":
       return "🌙";
     case WeatherType.RAIN:
+    case "rain":
       return "🌧️";
     case WeatherType.SNOW:
+    case "snow":
       return "❄️";
     case WeatherType.SLEET:
+    case "sleet":
       return "🌨️";
     case WeatherType.WIND:
+    case "wind":
       return "💨";
     case WeatherType.FOG:
+    case "fog":
       return "🌫️";
     case WeatherType.CLOUDY:
+    case "cloudy":
+    case "cloudy-day":
+    case "cloudy-night":
       return "☁️";
     case WeatherType.PARTLY_CLOUDY_DAY:
+    case "partly-cloudy-day":
       return "⛅";
     case WeatherType.PARTLY_CLOUDY_NIGHT:
+    case "partly-cloudy-night":
       return "🌤️";
     default:
-      return "❓";
+      return "☀️";
   }
 }
 

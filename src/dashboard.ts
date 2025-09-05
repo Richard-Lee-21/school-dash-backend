@@ -29,6 +29,7 @@ export async function renderHtml(data: DashboardData): Promise<string> {
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Kindle Dashboard</title>
     <style>
         ${styleTags}
@@ -45,7 +46,7 @@ export async function renderHtml(data: DashboardData): Promise<string> {
                       data.weatherData.currently.icon
                     )}</div>
                     <div class="weather-temp">${
-                      data.weatherData.currently.temperature
+                      Math.round(data.weatherData.currently.temperature)
                     }˚C</div>
                     <div class="weather-desc">${
                       data.weatherData.currently.summary
@@ -57,7 +58,7 @@ export async function renderHtml(data: DashboardData): Promise<string> {
                       data.weatherData.hourly.data[4].icon
                     )}</div>
                     <div class="weather-temp">${
-                      data.weatherData.hourly.data[4].temperature
+                      Math.round(data.weatherData.hourly.data[4].temperature)
                     }˚C</div>
                     <div class="weather-desc">${
                       data.weatherData.hourly.summary
@@ -69,7 +70,7 @@ export async function renderHtml(data: DashboardData): Promise<string> {
                       data.weatherData.hourly.data[8].icon
                     )}</div>
                     <div class="weather-temp">${
-                      data.weatherData.hourly.data[8].temperature
+                      Math.round(data.weatherData.hourly.data[8].temperature)
                     }˚C</div>
                     <div class="weather-desc">${
                       data.weatherData.hourly.data[8].summary
